@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 15
+VisualStudioVersion = 15.0.27703.2000
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "SigMe", "SigMe.vcxproj", "{D8B34397-45C6-4651-8A40-47BABEB3D7D6}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug (x64)|x64 = Debug (x64)|x64
+		Debug|x64 = Debug|x64
+		Release (x64)|x64 = Release (x64)|x64
+		Release|x64 = Release|x64
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{D8B34397-45C6-4651-8A40-47BABEB3D7D6}.Debug (x64)|x64.ActiveCfg = Debug (x64)|x64
+		{D8B34397-45C6-4651-8A40-47BABEB3D7D6}.Debug (x64)|x64.Build.0 = Debug (x64)|x64
+		{D8B34397-45C6-4651-8A40-47BABEB3D7D6}.Debug|x64.ActiveCfg = Release|x64
+		{D8B34397-45C6-4651-8A40-47BABEB3D7D6}.Debug|x64.Build.0 = Release|x64
+		{D8B34397-45C6-4651-8A40-47BABEB3D7D6}.Release (x64)|x64.ActiveCfg = Release (x64)|x64
+		{D8B34397-45C6-4651-8A40-47BABEB3D7D6}.Release (x64)|x64.Build.0 = Release (x64)|x64
+		{D8B34397-45C6-4651-8A40-47BABEB3D7D6}.Release|x64.ActiveCfg = Release|x64
+		{D8B34397-45C6-4651-8A40-47BABEB3D7D6}.Release|x64.Build.0 = Release|x64
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {64DDFD8F-B691-42FE-9642-F92961D6F4EA}
+	EndGlobalSection
+EndGlobal
