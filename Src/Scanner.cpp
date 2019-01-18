@@ -2,7 +2,6 @@
 
 #include <search.hpp>
 
-#include <iostream>
 #include <iomanip>
 
 Scanner::Scanner(ea_t p_StartAddress, bool p_Unique) : 

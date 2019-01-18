@@ -1,7 +1,10 @@
+#pragma warning(push)
+#pragma warning(disable: 4244 4267)
 #include <ida.hpp>
 #include <idp.hpp>
 #include <loader.hpp>
 #include <netnode.hpp>
+#pragma warning(pop)
 
 #include <windows.h>
 

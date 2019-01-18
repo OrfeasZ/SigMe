@@ -1,7 +1,9 @@
 #pragma once
 
-#include <ida.hpp>
+#pragma warning(push)
+#pragma warning(disable: 4244 4267)
 #include <idp.hpp>
+#pragma warning(pop)
 
 #include <vector>
 #include <sstream>
