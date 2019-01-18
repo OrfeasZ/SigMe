@@ -144,7 +144,7 @@ void Scanner::AddSigByte(SigByte p_Byte)
 
 void Scanner::AddSigBytes(const std::vector<SigByte>& p_Byte)
 {
-	for (auto s_Byte : p_Byte)
+	for (auto& s_Byte : p_Byte)
 		AddSigByte(s_Byte);
 }
 

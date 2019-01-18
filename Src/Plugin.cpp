@@ -103,8 +103,9 @@ bool idaapi IDAP_run(size_t arg)
 		{
 			EmptyClipboard();
 
-			HGLOBAL s_ClipboardBlob = GlobalAlloc(GMEM_FIXED, s_Signature.size() + 1);
-			strcpy_s((char*) s_ClipboardBlob, s_Signature.size() + 1, s_Signature.c_str());
+			HGLOBAL s_ClipboardBlob = GlobalAlloc(GMEM_MOVEABLE, s_Signature.size() + 1);
+			strcpy_s(reinterpret_cast<char*>(GlobalLock(s_ClipboardBlob)), s_Signature.size() + 1, s_Signature.c_str());
+			GlobalUnlock(s_ClipboardBlob);
 
 			if (SetClipboardData(CF_TEXT, s_ClipboardBlob) == NULL)
 				GlobalFree(s_ClipboardBlob);
