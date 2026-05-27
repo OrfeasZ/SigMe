@@ -178,13 +178,12 @@ std::string Scanner::GetCSignature()
 {
 	std::stringstream s_Stream;
 
-	s_Stream << GetMaskedSignature("00");
-
-	// Add the mask.
-	s_Stream << std::endl;
+	s_Stream << "\"" << GetMaskedSignature("00") << "\", \"";
 
 	for (auto s_Byte : m_Signature)
 		s_Stream << (s_Byte.m_Masked ? "?" : "x");
+
+	s_Stream << "\"";
 
 	s_Stream.flush();
 	return s_Stream.str();
