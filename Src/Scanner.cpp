@@ -1,5 +1,7 @@
 #include "Scanner.h"
 
+#include <ida.hpp>
+#include <bytes.hpp>
 #include <search.hpp>
 
 #include <iomanip>
@@ -18,13 +20,8 @@ void Scanner::StartScanning()
 		ProcessInstruction();
 
 	// Remove masked bytes from back.
-	for (size_t i = m_Signature.size() - 1; i >= 0; --i)
-	{
-		if (!m_Signature[i].m_Masked)
-			break;
-
+	while (!m_Signature.empty() && m_Signature.back().m_Masked)
 		m_Signature.pop_back();
-	}
 
 	// Remove masked bytes from front.
 	while (m_Signature.size() > 0 && m_Signature[0].m_Masked)
@@ -63,7 +60,6 @@ size_t Scanner::GetSignatureLength()
 void Scanner::ProcessInstruction()
 {
 	insn_t s_Instruction;
-	memset(&s_Instruction, 0x00, sizeof(insn_t));
 
 	int s_InstructionLen = decode_insn(&s_Instruction, m_CurrentAddress);
 	
@@ -113,14 +109,17 @@ bool Scanner::HasSignature()
 	if (m_Signature.size() == 0)
 		return false;
 
+	const ea_t s_MinEa = inf_get_min_ea();
+	const ea_t s_MaxEa = inf_get_max_ea();
+
 	// If we don't care about total uniqueness then search for our current pattern only
 	// up to the beginning of our searching area.
 	if (!m_Unique)
-		return find_binary(inf.min_ea, m_StartAddress, GetIDASignature().c_str(), 16, 1) == BADADDR;
-	
+		return find_binary(s_MinEa, m_StartAddress, GetIDASignature().c_str(), 16, BIN_SEARCH_FORWARD) == BADADDR;
+
 	// Otherwise search the entire database and see if our instance is totally unique.
-	ea_t s_FoundAddress = find_binary(inf.min_ea, inf.max_ea, GetIDASignature().c_str(), 16, 1);
-	ea_t s_SecondFound = find_binary(m_StartAddress + 1, inf.max_ea, GetIDASignature().c_str(), 16, 1);
+	ea_t s_FoundAddress = find_binary(s_MinEa, s_MaxEa, GetIDASignature().c_str(), 16, BIN_SEARCH_FORWARD);
+	ea_t s_SecondFound  = find_binary(m_StartAddress + 1, s_MaxEa, GetIDASignature().c_str(), 16, BIN_SEARCH_FORWARD);
 
 	return s_FoundAddress == BADADDR || (s_FoundAddress == m_StartAddress && s_SecondFound == BADADDR);
 }

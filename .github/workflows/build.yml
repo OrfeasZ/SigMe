@@ -1,0 +1,49 @@
+name: build
+
+on:
+  push:
+    branches: [master, main]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  build:
+    name: ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: ubuntu-latest
+            artifact_name: sigme.so
+          - os: macos-latest
+            artifact_name: sigme.dylib
+          - os: windows-latest
+            artifact_name: sigme.dll
+
+    steps:
+      - name: Checkout (with submodules)
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Configure
+        run: cmake -B build -S . -DCMAKE_BUILD_TYPE=Release
+
+      - name: Build
+        run: cmake --build build --config Release -j
+
+      - name: Locate plugin
+        id: locate
+        shell: bash
+        run: |
+          path="$(find third_party/ida-sdk/src/bin/plugins -maxdepth 2 -name '${{ matrix.artifact_name }}' | head -n 1)"
+          echo "path=$path" >> "$GITHUB_OUTPUT"
+          ls -l "$path"
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: sigme-${{ runner.os }}
+          path: ${{ steps.locate.outputs.path }}
+          if-no-files-found: error

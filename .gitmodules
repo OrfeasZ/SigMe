@@ -1,0 +1,6 @@
+[submodule "third_party/ida-sdk"]
+	path = third_party/ida-sdk
+	url = https://github.com/HexRaysSA/ida-sdk.git
+[submodule "third_party/ida-cmake"]
+	path = third_party/ida-cmake
+	url = https://github.com/allthingsida/ida-cmake.git
