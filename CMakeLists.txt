@@ -14,4 +14,6 @@ ida_add_plugin(sigme
         Src/Plugin.cpp
         Src/Scanner.cpp
         Src/Scanner.h
+        Src/SymbolPatterns.cpp
+        Src/SymbolPatterns.h
 )

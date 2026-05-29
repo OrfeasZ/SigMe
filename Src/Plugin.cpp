@@ -16,6 +16,7 @@
 #endif
 
 #include "Scanner.h"
+#include "SymbolPatterns.h"
 
 static const char IDAP_comment[] = "SigMe";
 static const char IDAP_help[]    = "SigMe";
@@ -53,7 +54,11 @@ static const char g_SelectionDialog[] =
 "matching algorithm you employ does not\n"
 "work sequentially then tick the box.\n"
 "<##Additional Options##Generate Unique Signature:C>\n"
-"<Copy to Clipboard:C>>\n";
+"<Copy to Clipboard:C>>\n"
+"\n"
+"Bulk symbol pattern tools:\n"
+"<#Export an IDA pattern for every user-renamed symbol (functions + globals) to a file#Export Renamed Symbols...:B:0:::>\n"
+"<#Load a pattern file and rename every uniquely matching symbol#Import and Rename Symbols...:B:0:::>\n";
 
 template<typename T>
 static T GetNetnodeValue(const char* p_Name, T p_DefaultVal)
@@ -142,6 +147,18 @@ static void CopyToClipboard(const std::string& p_Text)
 }
 #endif
 
+static int idaapi ExportButtonCallback(int /*button_code*/, form_actions_t& /*fa*/)
+{
+	ExportRenamedSymbols();
+	return 0;
+}
+
+static int idaapi ImportButtonCallback(int /*button_code*/, form_actions_t& /*fa*/)
+{
+	ImportAndRenameSymbols();
+	return 0;
+}
+
 static bool idaapi IDAP_run(size_t /*arg*/)
 {
 	PLUGIN.flags |= PLUGIN_UNL;
@@ -152,7 +169,8 @@ static bool idaapi IDAP_run(size_t /*arg*/)
 	ushort s_CheckMask      = GetNetnodeValue<uint8_t>("$ sigme_cm", 2);
 
 	// Show our main form.
-	if (ask_form(g_SelectionDialog, &s_SelectedMethod, &s_WildcardByte, &s_CheckMask) != 1)
+	if (ask_form(g_SelectionDialog, &s_SelectedMethod, &s_WildcardByte, &s_CheckMask,
+	             ExportButtonCallback, ImportButtonCallback) != 1)
 		return false;
 
 	// Store the new setting values in the IDB.
