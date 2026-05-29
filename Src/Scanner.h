@@ -59,6 +59,9 @@ private:
 private:
 	ea_t m_StartAddress;
 	ea_t m_CurrentAddress;
+	ea_t m_StartFuncStart;
+	ea_t m_MinEa;
+	ea_t m_MaxEa;
 	bool m_HasError;
 	bool m_Unique;
 	std::vector<SigByte> m_Signature;
