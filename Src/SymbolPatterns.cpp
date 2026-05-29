@@ -9,6 +9,7 @@
 #include <name.hpp>
 #include <search.hpp>
 #include <xref.hpp>
+#include <fpro.h>
 #include <kernwin.hpp>
 #ifdef _MSC_VER
 #pragma warning(pop)
@@ -16,7 +17,6 @@
 
 #include "Scanner.h"
 
-#include <fstream>
 #include <string>
 
 // Separator between fields in the pattern file.
@@ -57,15 +57,14 @@ void ExportRenamedSymbols()
 	if (s_Path == nullptr)
 		return;
 
-	std::ofstream s_File(s_Path, std::ios::out | std::ios::trunc);
-	if (!s_File.is_open())
+	FILE* s_File = qfopen(s_Path, "w");
+	if (s_File == nullptr)
 	{
 		msg("[SigMe] Could not open '%s' for writing.\n", s_Path);
 		return;
 	}
 
-	s_File << "# SigMe symbol patterns: <kind>" << g_FieldSeparator << "<IDA signature>"
-	       << g_FieldSeparator << "<name>\n";
+	qfputs("# SigMe symbol patterns: <kind>|<IDA signature>|<name>\n", s_File);
 
 	size_t s_Exported = 0;
 	size_t s_Skipped  = 0;
@@ -119,11 +118,13 @@ void ExportRenamedSymbols()
 			continue;
 		}
 
-		s_File << s_Kind << g_FieldSeparator << s_Signature << g_FieldSeparator << s_Name << "\n";
+		std::string s_Line = std::string(1, s_Kind) + g_FieldSeparator + s_Signature
+		                   + g_FieldSeparator + s_Name + "\n";
+		qfputs(s_Line.c_str(), s_File);
 		++s_Exported;
 	}
 
-	s_File.close();
+	qfclose(s_File);
 
 	msg("[SigMe] Exported %d symbol pattern(s) to '%s' (%d skipped).\n",
 	    (int) s_Exported, s_Path, (int) s_Skipped);
@@ -135,8 +136,8 @@ void ImportAndRenameSymbols()
 	if (s_Path == nullptr)
 		return;
 
-	std::ifstream s_File(s_Path, std::ios::in);
-	if (!s_File.is_open())
+	FILE* s_File = qfopen(s_Path, "r");
+	if (s_File == nullptr)
 	{
 		msg("[SigMe] Could not open '%s' for reading.\n", s_Path);
 		return;
@@ -150,9 +151,11 @@ void ImportAndRenameSymbols()
 	size_t s_Ambiguous = 0;
 	size_t s_Failed    = 0;
 
-	std::string s_Line;
-	while (std::getline(s_File, s_Line))
+	qstring s_LineBuf;
+	while (qgetline(&s_LineBuf, s_File) >= 0)
 	{
+		std::string s_Line(s_LineBuf.c_str());
+
 		// Skip comments and blank lines.
 		if (s_Line.empty() || s_Line[0] == '#')
 			continue;
@@ -210,7 +213,7 @@ void ImportAndRenameSymbols()
 			++s_Failed;
 	}
 
-	s_File.close();
+	qfclose(s_File);
 
 	msg("[SigMe] Import complete: %d renamed, %d not found, %d ambiguous, %d failed.\n",
 	    (int) s_Renamed, (int) s_NotFound, (int) s_Ambiguous, (int) s_Failed);
