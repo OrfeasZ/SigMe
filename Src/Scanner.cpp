@@ -7,6 +7,8 @@
 
 #include <iomanip>
 
+static const int g_SearchFlags = BIN_SEARCH_FORWARD | BIN_SEARCH_CASE | BIN_SEARCH_NOBREAK | BIN_SEARCH_NOSHOW;
+
 Scanner::Scanner(ea_t p_StartAddress, bool p_Unique) : 
 	m_StartAddress(p_StartAddress), 
 	m_CurrentAddress(p_StartAddress),
@@ -134,20 +136,26 @@ bool Scanner::HasSignature()
 	// If we don't care about total uniqueness then search for our current pattern only
 	// up to the beginning of our searching area.
 	if (!m_Unique)
-		return find_binary(m_MinEa, m_StartAddress, s_Pattern.c_str(), 16, BIN_SEARCH_FORWARD) == BADADDR;
+		return find_binary(m_MinEa, m_StartAddress, s_Pattern.c_str(), 16, g_SearchFlags) == BADADDR;
 
 	// Find the earliest occurrence in the whole database. Our own bytes always
 	// match at m_StartAddress, so the first match is either an earlier copy
 	// (signature not yet unique) or our own instance.
-	ea_t s_FirstFound = find_binary(m_MinEa, m_MaxEa, s_Pattern.c_str(), 16, BIN_SEARCH_FORWARD);
+	ea_t s_FirstFound = find_binary(m_MinEa, m_MaxEa, s_Pattern.c_str(), 16, g_SearchFlags);
+
+	if (s_FirstFound == BADADDR)
+	{
+		m_HasError = true;
+		return true;
+	}
 
 	// An earlier match means the pattern is still ambiguous; keep growing it.
 	// This avoids a second full-database scan on every non-unique iteration.
 	if (s_FirstFound != m_StartAddress)
-		return s_FirstFound == BADADDR;
+		return false;
 
 	// Our instance is the earliest match; it is unique iff nothing matches after it.
-	return find_binary(m_StartAddress + 1, m_MaxEa, s_Pattern.c_str(), 16, BIN_SEARCH_FORWARD) == BADADDR;
+	return find_binary(m_StartAddress + 1, m_MaxEa, s_Pattern.c_str(), 16, g_SearchFlags) == BADADDR;
 }
 
 void Scanner::AddSigByte(SigByte p_Byte)
