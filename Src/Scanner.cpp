@@ -9,7 +9,7 @@
 
 static const int g_SearchFlags = BIN_SEARCH_FORWARD | BIN_SEARCH_CASE | BIN_SEARCH_NOBREAK | BIN_SEARCH_NOSHOW;
 
-Scanner::Scanner(ea_t p_StartAddress, bool p_Unique) : 
+Scanner::Scanner(ea_t p_StartAddress, bool p_Unique, bool p_StopAtFunctionEnd) : 
 	m_StartAddress(p_StartAddress), 
 	m_CurrentAddress(p_StartAddress),
 	m_StartFuncStart(BADADDR),
@@ -20,6 +20,9 @@ Scanner::Scanner(ea_t p_StartAddress, bool p_Unique) :
 {
 	// Remember which function we started in (if any) so we can stop before
 	// crossing into a different function.
+	if (!p_StopAtFunctionEnd)
+		return;
+
 	func_t* s_Func = get_func(p_StartAddress);
 	if (s_Func != nullptr)
 		m_StartFuncStart = s_Func->start_ea;

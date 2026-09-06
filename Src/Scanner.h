@@ -35,7 +35,7 @@ public:
 	};
 
 public:
-	Scanner(ea_t p_StartAddress, bool p_Unique);
+	Scanner(ea_t p_StartAddress, bool p_Unique, bool p_StopAtFunctionEnd);
 
 public:
 	void StartScanning();

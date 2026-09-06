@@ -54,7 +54,8 @@ static const char g_SelectionDialog[] =
 "matching algorithm you employ does not\n"
 "work sequentially then tick the box.\n"
 "<##Additional Options##Generate Unique Signature:C>\n"
-"<Copy to Clipboard:C>>\n"
+"<Copy to Clipboard:C>\n"
+"<#Keep scanning past the end of the current function#Continue Past Function End:C>>\n"
 "\n"
 "Bulk symbol pattern tools:\n"
 "<#Export an IDA pattern for every user-renamed symbol (functions + globals) to a file#Export Renamed Symbols...:B:0:::>\n"
@@ -178,13 +179,14 @@ static bool idaapi IDAP_run(size_t /*arg*/)
 	SetNetnodeValue<uint8_t>("$ sigme_sm", (uint8_t) s_SelectedMethod);
 	SetNetnodeValue<uint8_t>("$ sigme_cm", (uint8_t) s_CheckMask);
 
-	bool s_Unique    = (s_CheckMask & 1) != 0;
-	bool s_Clipboard = (s_CheckMask & 2) != 0;
+	bool s_Unique            = (s_CheckMask & 1) != 0;
+	bool s_Clipboard         = (s_CheckMask & 2) != 0;
+	bool s_StopAtFunctionEnd = (s_CheckMask & 4) == 0;
 
 	msg("[SigMe] Creating signature. Please wait...\n");
 
 	// Initiate our Scanner and start scanning.
-	Scanner s_Scanner(get_screen_ea(), s_Unique);
+	Scanner s_Scanner(get_screen_ea(), s_Unique, s_StopAtFunctionEnd);
 	s_Scanner.StartScanning();
 
 	// Did we encounter an error?

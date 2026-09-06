@@ -270,7 +270,7 @@ void ExportRenamedSymbols()
 
 		for (const Attempt& s_Attempt : s_Attempts)
 		{
-			Scanner s_Scanner(s_Attempt.m_Ea, true);
+			Scanner s_Scanner(s_Attempt.m_Ea, true, true);
 			s_Scanner.StartScanning();
 
 			if (s_Scanner.HasError())
