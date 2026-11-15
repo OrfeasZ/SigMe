@@ -197,7 +197,7 @@ static bool idaapi IDAP_run(size_t /*arg*/)
 	}
 
 	// If not, print the final signature.
-	std::string s_Signature = s_Scanner.GetSignature((Scanner::SigType) s_SelectedMethod);
+	std::string s_Signature = s_Scanner.GetSignature((Scanner::SigType) s_SelectedMethod, (uint8_t) s_WildcardByte);
 	msg("[SigMe] Generated signature (%d bytes):\n%s\n",
 	    (int) s_Scanner.GetSignatureLength(), s_Signature.c_str());
 

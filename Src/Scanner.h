@@ -39,7 +39,7 @@ public:
 
 public:
 	void StartScanning();
-	std::string GetSignature(SigType p_Type);
+	std::string GetSignature(SigType p_Type, uint8_t p_WildcardByte = 0xDD);
 	size_t GetSignatureLength();
 	inline bool HasError() const { return m_HasError; }
 
@@ -53,8 +53,8 @@ private:
 	std::string GetFinalIDASignature();
 	std::string GetCSignature();
 	std::string GetSourceModSignature();
-	std::string GetCustomSignature();
-	std::string GetMaskedSignature(const std::string& p_MaskByte);
+	std::string GetCustomSignature(uint8_t p_WildcardByte);
+	std::string GetMaskedSignature(uint8_t p_MaskByte);
 
 private:
 	ea_t m_StartAddress;

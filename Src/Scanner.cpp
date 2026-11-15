@@ -42,7 +42,7 @@ void Scanner::StartScanning()
 		m_Signature.erase(m_Signature.begin());
 }
 
-std::string Scanner::GetSignature(SigType p_Type)
+std::string Scanner::GetSignature(SigType p_Type, uint8_t p_WildcardByte)
 {
 	switch (p_Type)
 	{
@@ -56,7 +56,7 @@ std::string Scanner::GetSignature(SigType p_Type)
 		return GetSourceModSignature();
 
 	case Custom:
-		return GetCustomSignature();
+		return GetCustomSignature(p_WildcardByte);
 
 	default:
 		return "";
@@ -215,7 +215,7 @@ std::string Scanner::GetCSignature()
 {
 	std::stringstream s_Stream;
 
-	s_Stream << "\"" << GetMaskedSignature("00") << "\", \"";
+	s_Stream << "\"" << GetMaskedSignature(0x00) << "\", \"";
 
 	for (auto s_Byte : m_Signature)
 		s_Stream << (s_Byte.m_Masked ? "?" : "x");
@@ -228,15 +228,15 @@ std::string Scanner::GetCSignature()
 
 std::string Scanner::GetSourceModSignature()
 {
-	return GetMaskedSignature("2A");
+	return GetMaskedSignature(0x2A);
 }
 
-std::string Scanner::GetCustomSignature()
+std::string Scanner::GetCustomSignature(uint8_t p_WildcardByte)
 {
-	return GetMaskedSignature("DD");
+	return GetMaskedSignature(p_WildcardByte);
 }
 
-std::string Scanner::GetMaskedSignature(const std::string& p_MaskByte)
+std::string Scanner::GetMaskedSignature(uint8_t p_MaskByte)
 {
 	std::stringstream s_Stream;
 
@@ -244,10 +244,8 @@ std::string Scanner::GetMaskedSignature(const std::string& p_MaskByte)
 	{
 		std::ios::fmtflags s_PrevFlags(s_Stream.flags());
 
-		if (s_Byte.m_Masked)
-			s_Stream << "\\x" << p_MaskByte;
-		else
-			s_Stream << "\\x" << std::hex << std::setfill('0') << std::setw(2) << std::uppercase << (int) s_Byte.m_Byte;
+		uint8_t s_Value = s_Byte.m_Masked ? p_MaskByte : s_Byte.m_Byte;
+		s_Stream << "\\x" << std::hex << std::setfill('0') << std::setw(2) << std::uppercase << (int) s_Value;
 
 		s_Stream.flags(s_PrevFlags);
 	}
