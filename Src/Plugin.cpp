@@ -7,6 +7,7 @@
 #include <loader.hpp>
 #include <netnode.hpp>
 #include <kernwin.hpp>
+#include <expr.hpp>
 #ifdef _MSC_VER
 #pragma warning(pop)
 #endif
@@ -160,10 +161,42 @@ static int idaapi ImportButtonCallback(int /*button_code*/, form_actions_t& /*fa
 	return 0;
 }
 
+// IDC: string SigMe_GetSignature(long ea, long type, long unique = 1, long stop_at_func_end = 1, long wildcard = 0xDD)
+// Returns an empty string if no signature could be generated.
+static error_t idaapi GetSignatureIdc(idc_value_t* p_Argv, idc_value_t* p_Result)
+{
+	ea_t s_Address           = p_Argv[0].num;
+	auto s_Type              = (Scanner::SigType) p_Argv[1].num;
+	bool s_Unique            = p_Argv[2].num != 0;
+	bool s_StopAtFunctionEnd = p_Argv[3].num != 0;
+	auto s_WildcardByte      = (uint8_t) p_Argv[4].num;
+
+	Scanner s_Scanner(s_Address, s_Unique, s_StopAtFunctionEnd);
+	s_Scanner.StartScanning();
+
+	if (s_Scanner.HasError())
+		p_Result->set_string("");
+	else
+		p_Result->set_string(s_Scanner.GetSignature(s_Type, s_WildcardByte).c_str());
+
+	return eOk;
+}
+
+static const char g_GetSignatureArgs[] = { VT_LONG, VT_LONG, VT_LONG, VT_LONG, VT_LONG, 0 };
+static const idc_value_t g_GetSignatureDefaults[] = { idc_value_t(1), idc_value_t(1), idc_value_t(0xDD) };
+
+static const ext_idcfunc_t g_GetSignatureFunc =
+{
+	"SigMe_GetSignature",
+	GetSignatureIdc,
+	g_GetSignatureArgs,
+	g_GetSignatureDefaults,
+	qnumber(g_GetSignatureDefaults),
+	EXTFUN_BASE
+};
+
 static bool idaapi IDAP_run(size_t /*arg*/)
 {
-	PLUGIN.flags |= PLUGIN_UNL;
-
 	// Load our saved settings (if any).
 	uval_t s_WildcardByte   = GetNetnodeValue<uint8_t>("$ sigme_wb", 0xDD);
 	ushort s_SelectedMethod = GetNetnodeValue<uint8_t>("$ sigme_sm", 0);
@@ -209,9 +242,11 @@ static bool idaapi IDAP_run(size_t /*arg*/)
 
 static void idaapi IDAP_term(void)
 {
+	del_idc_func(g_GetSignatureFunc.name);
 }
 
 static plugmod_t* idaapi IDAP_init(void)
 {
+	add_idc_func(g_GetSignatureFunc);
 	return PLUGIN_KEEP;
 }
